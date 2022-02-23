@@ -86,6 +86,14 @@ workflow SENTIEON {
 
     ch_versions = Channel.empty()
 
+    /*
+    =========================================
+    =========================================
+        READ IN INPUT SAMPLESHEET
+    =========================================
+    =========================================
+    */
+
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
@@ -100,6 +108,14 @@ workflow SENTIEON {
         .reads
         .filter { meta, fasta -> !meta.single_end }
         .set { ch_reads }
+
+    /*
+    =========================================
+    =========================================
+        PREPARE GENOME FILES
+    =========================================
+    =========================================
+    */
 
     //
     // MODULE: Generate Fasta index file
@@ -118,6 +134,14 @@ workflow SENTIEON {
     )
     ch_versions = ch_versions.mix(SENTIEON_BWAINDEX.out.versions)
 
+    /*
+    =========================================
+    =========================================
+        READ QC
+    =========================================
+    =========================================
+    */
+
     //
     // MODULE: Run FastQC
     //
@@ -125,6 +149,14 @@ workflow SENTIEON {
         ch_reads
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    /*
+    =========================================
+    =========================================
+        READ MAPPING
+    =========================================
+    =========================================
+    */
 
     //
     // MODULE: Run Sentieon bwa mem command
@@ -135,6 +167,14 @@ workflow SENTIEON {
         ch_fai,
         SENTIEON_BWAINDEX.out.index
     )
+
+    /*
+    =========================================
+    =========================================
+        QC METRICS
+    =========================================
+    =========================================
+    */
 
     //
     // MODULE: Run Sentieon driver command to get various QC metrics
@@ -174,6 +214,14 @@ workflow SENTIEON {
         SENTIEON_DRIVER_METRICS.out.metrics_is
     )
 
+    /*
+    =========================================
+    =========================================
+        DEDUPLICATE ALIGNMENTS
+    =========================================
+    =========================================
+    */
+
     //
     // MODULE: Run Sentieon driver command for LocusCollector
     //
@@ -206,6 +254,14 @@ workflow SENTIEON {
         []
     )
     ch_versions = ch_versions.mix(SENTIEON_DRIVER_DEDUP.out.versions.first())
+
+    /*
+    =========================================
+    =========================================
+        BASE RECALIBRATION
+    =========================================
+    =========================================
+    */
 
     //
     // MODULE: Run Sentieon driver command for QualCal (pre-recalibration)
@@ -267,6 +323,14 @@ workflow SENTIEON {
         SENTIEON_DRIVER_QUALCAL_RECAL_PLOT.out.recal_csv
     )
 
+    /*
+    =========================================
+    =========================================
+        VARIANT CALLING
+    =========================================
+    =========================================
+    */
+
     //
     // MODULE: Run Sentieon driver command for Haplotyper
     //
@@ -279,6 +343,14 @@ workflow SENTIEON {
         []
     )
 
+    /*
+    =========================================
+    =========================================
+        RECALIBRATED BAM
+    =========================================
+    =========================================
+    */
+
     //
     // MODULE: Run Sentieon driver command for ReadWriter
     //
@@ -290,6 +362,14 @@ workflow SENTIEON {
         [],
         []
     )
+
+    /*
+    =========================================
+    =========================================
+        PIPELINE QC
+    =========================================
+    =========================================
+    */
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
