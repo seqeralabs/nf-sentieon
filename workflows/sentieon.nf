@@ -48,6 +48,11 @@ include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_POST } from '../modul
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PLOT } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_HAPLOTYPER         } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_READWRITER         } from '../modules/local/sentieon_driver'
+include { SENTIEON_PLOT   as SENTIEON_PLOT_GCBIAS               } from '../modules/local/sentieon_plot'
+include { SENTIEON_PLOT   as SENTIEON_PLOT_QUALDISTRIBUTION     } from '../modules/local/sentieon_plot'
+include { SENTIEON_PLOT   as SENTIEON_PLOT_MEANQUALITYBYCYCLE   } from '../modules/local/sentieon_plot'
+include { SENTIEON_PLOT   as SENTIEON_PLOT_INSERTSIZEMETRICS    } from '../modules/local/sentieon_plot'
+include { SENTIEON_PLOT   as SENTIEON_PLOT_QUALCAL              } from '../modules/local/sentieon_plot'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -130,7 +135,6 @@ workflow SENTIEON {
         ch_fai,
         SENTIEON_BWAINDEX.out.index
     )
-    ch_versions = ch_versions.mix(SENTIEON_BWAMEM.out.versions.first())
 
     //
     // MODULE: Run Sentieon driver command to get various QC metrics
@@ -150,7 +154,25 @@ workflow SENTIEON {
         [],
         []
     )
-    ch_versions = ch_versions.mix(SENTIEON_DRIVER_METRICS.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon plot to create PDF plots for QC metrics
+    //
+    SENTIEON_PLOT_GCBIAS (
+        SENTIEON_DRIVER_METRICS.out.metrics_gc
+    )
+
+    SENTIEON_PLOT_QUALDISTRIBUTION (
+        SENTIEON_DRIVER_METRICS.out.metrics_qd
+    )
+
+    SENTIEON_PLOT_MEANQUALITYBYCYCLE (
+        SENTIEON_DRIVER_METRICS.out.metrics_mq
+    )
+
+    SENTIEON_PLOT_INSERTSIZEMETRICS (
+        SENTIEON_DRIVER_METRICS.out.metrics_is
+    )
 
     //
     // MODULE: Run Sentieon driver command for LocusCollector
@@ -240,7 +262,10 @@ workflow SENTIEON {
         [],
         []
     )
-    ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_PLOT.out.versions.first())
+
+    SENTIEON_PLOT_QUALCAL (
+        SENTIEON_DRIVER_QUALCAL_RECAL_PLOT.out.recal_csv
+    )
 
     //
     // MODULE: Run Sentieon driver command for Haplotyper
@@ -253,7 +278,6 @@ workflow SENTIEON {
         [],
         []
     )
-    ch_versions = ch_versions.mix(SENTIEON_DRIVER_HAPLOTYPER.out.versions.first())
 
     //
     // MODULE: Run Sentieon driver command for ReadWriter
@@ -266,7 +290,6 @@ workflow SENTIEON {
         [],
         []
     )
-    ch_versions = ch_versions.mix(SENTIEON_DRIVER_READWRITER.out.versions.first())
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

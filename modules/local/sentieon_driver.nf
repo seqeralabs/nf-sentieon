@@ -33,8 +33,6 @@ process SENTIEON_DRIVER {
 
     script:
     def args   = task.ext.args ?: ''
-    def args2  = task.ext.args2 ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
     def input  = bam ? "-i $bam" : ''
     def ref    = fasta ? "-r $fasta" : ''
     def dbsnp  = known_dbsnp  ? "-k $known_dbsnp" : ''
