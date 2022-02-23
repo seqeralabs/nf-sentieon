@@ -16,6 +16,9 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.fasta) { ch_fasta = file(params.fasta) } else { exit 1, 'Genome fasta not specified!'      }
+if (params.known_dbsnp)  { ch_known_dbsnp  = file(params.known_dbsnp)  } else { ch_known_dbsnp  = [] }
+if (params.known_mills)  { ch_known_mills  = file(params.known_mills)  } else { ch_known_mills  = [] }
+if (params.known_indels) { ch_known_indels = file(params.known_indels) } else { ch_known_indels = [] }
 
 /*
 ========================================================================================
@@ -37,7 +40,14 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 include { SENTIEON_BWAINDEX } from '../modules/local/sentieon_bwaindex'
 include { SENTIEON_BWAMEM   } from '../modules/local/sentieon_bwamem'
-include { SENTIEON_DRIVER   } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_METRICS            } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_LOCUSCOLLECTOR     } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_DEDUP              } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PRE  } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_POST } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PLOT } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_HAPLOTYPER         } from '../modules/local/sentieon_driver'
+include { SENTIEON_DRIVER as SENTIEON_DRIVER_READWRITER         } from '../modules/local/sentieon_driver'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -92,6 +102,7 @@ workflow SENTIEON {
     SAMTOOLS_FAIDX (
         [ [:], ch_fasta ]
     )
+    ch_fai      = SAMTOOLS_FAIDX.out.fai.map { it[1] }
     ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
 
     //
@@ -103,54 +114,182 @@ workflow SENTIEON {
     ch_versions = ch_versions.mix(SENTIEON_BWAINDEX.out.versions)
 
     //
-    // MODULE: Run Sentieon driver command
+    // MODULE: Run FastQC
+    //
+    FASTQC (
+        ch_reads
+    )
+    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon bwa mem command
     //
     SENTIEON_BWAMEM (
         ch_reads,
         ch_fasta,
-        SAMTOOLS_FAIDX.out.fai.map { it[1] },
+        ch_fai,
         SENTIEON_BWAINDEX.out.index
     )
-    ch_versions = ch_versions.mix(SENTIEON_BWAMEM.out.versions)
+    ch_versions = ch_versions.mix(SENTIEON_BWAMEM.out.versions.first())
 
-    // //
-    // // MODULE: Run Sentieon driver command
-    // //
-    // SENTIEON_DRIVER (
-    //     ch_reads
-    // )
-    // ch_versions = ch_versions.mix(SENTIEON_DRIVER.out.versions)
+    //
+    // MODULE: Run Sentieon driver command to get various QC metrics
+    //
+    SENTIEON_BWAMEM
+        .out
+        .bam
+        .join(SENTIEON_BWAMEM.out.bai)
+        .map { it -> it + [ [], [], [], [] ] }
+        .set { ch_bam_bai }
 
-    // //
-    // // MODULE: Run FastQC
-    // //
-    // FASTQC (
-    //     ch_reads
-    // )
-    // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    SENTIEON_DRIVER_METRICS (
+        ch_bam_bai,
+        ch_fasta,
+        ch_fai,
+        [],
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_METRICS.out.versions.first())
 
-    // CUSTOM_DUMPSOFTWAREVERSIONS (
-    //     ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    // )
+    //
+    // MODULE: Run Sentieon driver command for LocusCollector
+    //
+    SENTIEON_DRIVER_LOCUSCOLLECTOR (
+        ch_bam_bai,
+        [],
+        [],
+        [],
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_LOCUSCOLLECTOR.out.versions.first())
 
-    // //
-    // // MODULE: MultiQC
-    // //
-    // workflow_summary    = WorkflowSentieon.paramsSummaryMultiqc(workflow, summary_params)
-    // ch_workflow_summary = Channel.value(workflow_summary)
+    //
+    // MODULE: Run Sentieon driver command for Dedup
+    //
+    ch_bam_bai
+        .map { meta, bam, bai, score, score_idx, recal_pre, recal_post -> [ meta, bam, bai ] }
+        .join(SENTIEON_DRIVER_LOCUSCOLLECTOR.out.score)
+        .join(SENTIEON_DRIVER_LOCUSCOLLECTOR.out.score_idx)
+        .map { it -> it + [ [], [] ] }
+        .set { ch_bam_bai_score }
 
-    // ch_multiqc_files = Channel.empty()
-    // ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
-    // ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
-    // ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    // ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    // ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    SENTIEON_DRIVER_DEDUP (
+        ch_bam_bai_score,
+        [],
+        [],
+        [],
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_DEDUP.out.versions.first())
 
-    // MULTIQC (
-    //     ch_multiqc_files.collect()
-    // )
-    // multiqc_report = MULTIQC.out.report.toList()
-    // ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+    //
+    // MODULE: Run Sentieon driver command for QualCal (pre-recalibration)
+    //
+    SENTIEON_DRIVER_DEDUP
+        .out
+        .bam
+        .join(SENTIEON_DRIVER_DEDUP.out.bai)
+        .map { it -> it + [ [], [], [], [] ] }
+        .set { ch_dedup_bam_bai }
+
+    SENTIEON_DRIVER_QUALCAL_RECAL_PRE (
+        ch_dedup_bam_bai,
+        ch_fasta,
+        ch_fai,
+        ch_known_dbsnp,
+        ch_known_mills,
+        ch_known_indels
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_PRE.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon driver command for QualCal (post-recalibration)
+    //
+    ch_dedup_bam_bai
+        .map { meta, bam, bai, score, score_idx, recal_pre, recal_post -> [ meta, bam, bai, score, score_idx ] }
+        .join(SENTIEON_DRIVER_QUALCAL_RECAL_PRE.out.recal_pre)
+        .map { it -> it + [ [] ] }
+        .set { ch_dedup_recal_bam_bai }
+
+    SENTIEON_DRIVER_QUALCAL_RECAL_POST (
+        ch_dedup_recal_bam_bai,
+        ch_fasta,
+        ch_fai,
+        ch_known_dbsnp,
+        ch_known_mills,
+        ch_known_indels
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_POST.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon driver command for QualCal (plot recalibration)
+    //
+    ch_dedup_recal_bam_bai
+        .map { meta, bam, bai, score, score_idx, recal_pre, recal_post -> [ meta, [], [], [], [], recal_pre ] }
+        .join(SENTIEON_DRIVER_QUALCAL_RECAL_POST.out.recal_post)
+        .set { ch_recal_pre_post }
+
+    SENTIEON_DRIVER_QUALCAL_RECAL_PLOT (
+        ch_recal_pre_post,
+        [],
+        [],
+        [],
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_PLOT.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon driver command for Haplotyper
+    //
+    SENTIEON_DRIVER_HAPLOTYPER (
+        ch_dedup_recal_bam_bai,
+        ch_fasta,
+        ch_fai,
+        ch_known_dbsnp,
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_HAPLOTYPER.out.versions.first())
+
+    //
+    // MODULE: Run Sentieon driver command for ReadWriter
+    //
+    SENTIEON_DRIVER_READWRITER (
+        ch_dedup_recal_bam_bai,
+        ch_fasta,
+        ch_fai,
+        [],
+        [],
+        []
+    )
+    ch_versions = ch_versions.mix(SENTIEON_DRIVER_READWRITER.out.versions.first())
+
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+
+    //
+    // MODULE: MultiQC
+    //
+    workflow_summary    = WorkflowSentieon.paramsSummaryMultiqc(workflow, summary_params)
+    ch_workflow_summary = Channel.value(workflow_summary)
+
+    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+
+    MULTIQC (
+        ch_multiqc_files.collect()
+    )
+    multiqc_report = MULTIQC.out.report.toList()
+    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
 }
 
 /*
