@@ -129,10 +129,16 @@ workflow SENTIEON {
     //
     // MODULE: Make BWA index
     //
-    SENTIEON_BWAINDEX (
-        ch_fasta
-    )
-    ch_versions = ch_versions.mix(SENTIEON_BWAINDEX.out.versions)
+    ch_bwa_index = Channel.empty()
+    if (params.bwa_index) {
+        ch_bwa_index = file(params.bwa_index)
+    } else {
+        SENTIEON_BWAINDEX (
+            ch_fasta
+        )
+        ch_bwa_index = SENTIEON_BWAINDEX.out.index
+        ch_versions  = ch_versions.mix(SENTIEON_BWAINDEX.out.versions)
+    }
 
     /*
     =========================================
@@ -165,7 +171,7 @@ workflow SENTIEON {
         ch_reads,
         ch_fasta,
         ch_fai,
-        SENTIEON_BWAINDEX.out.index
+        ch_bwa_index
     )
 
     /*
