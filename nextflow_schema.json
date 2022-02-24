@@ -65,6 +65,26 @@
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
                 },
+                "bwa_index": {
+                    "type": "string",
+                    "default": null,
+                    "fa_icon": "fas fa-address-book"
+                },
+                "known_dbsnp": {
+                    "type": "string",
+                    "default": null,
+                    "fa_icon": "fas fa-chart-bar"
+                },
+                "known_indels": {
+                    "type": "string",
+                    "default": null,
+                    "fa_icon": "fas fa-chart-bar"
+                },
+                "known_mills": {
+                    "type": "string",
+                    "default": null,
+                    "fa_icon": "fas fa-chart-bar"
+                },
                 "igenomes_base": {
                     "type": "string",
                     "format": "directory-path",
