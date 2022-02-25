@@ -1,6 +1,7 @@
 process SENTIEON_BWAMEM {
     tag "$meta.id"
     label 'process_high'
+    label 'sentieon'
 
     input:
     tuple val(meta), path(reads)

@@ -1,6 +1,7 @@
 process SENTIEON_BWAINDEX {
     tag "$fasta"
     label 'process_high'
+    label 'sentieon'
 
     input:
     path fasta

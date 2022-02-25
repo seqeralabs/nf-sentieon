@@ -1,6 +1,7 @@
 process SENTIEON_DRIVER {
     tag "$meta.id"
     label 'process_high'
+    label 'sentieon'
 
     input:
     tuple val(meta), path(bam), path(bai), path(score), path(score_idx), path(recal_pre), path(recal_post)

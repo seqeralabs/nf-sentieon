@@ -1,6 +1,7 @@
 process SENTIEON_PLOT {
     tag "$meta.id"
     label 'process_low'
+    label 'sentieon'
 
     input:
     tuple val(meta), path(input_file)
