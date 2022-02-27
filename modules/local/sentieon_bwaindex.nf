@@ -15,17 +15,21 @@ process SENTIEON_BWAINDEX {
 
     script:
     def args = task.ext.args ?: ''
+    def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
     mkdir bwa_index
-    sentieon bwa index \\
+
+    $sentieon_exe \\
+        bwa \\
+        index \\
         $args \\
         -p bwa_index/${fasta.baseName} \\
         $fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sentieon: \$(echo \$(sentieon driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
-        bwa: \$(echo \$(sentieon bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+        sentieon: \$(echo \$($sentieon_exe driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
+        bwa: \$(echo \$($sentieon_exe bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
     END_VERSIONS
     """
 }

@@ -15,14 +15,16 @@ process SENTIEON_PLOT {
 
     script:
     def args = task.ext.args ?: ''
+    def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    sentieon plot \\
+    $sentieon_exe \\
+        plot \\
         $args \\
         $input_file
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sentieon: \$(echo \$(sentieon driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
+        sentieon: \$(echo \$($sentieon_exe driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
     END_VERSIONS
     """
 }

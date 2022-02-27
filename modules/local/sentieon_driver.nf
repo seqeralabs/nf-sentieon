@@ -47,8 +47,10 @@ process SENTIEON_DRIVER {
             args = args_list.join(' ')
         }
     }
+    def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    sentieon driver \\
+    $sentieon_exe \\
+        driver \\
         $ref \\
         -t $task.cpus \\
         $input \\
@@ -59,7 +61,7 @@ process SENTIEON_DRIVER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sentieon: \$(echo \$(sentieon driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
+        sentieon: \$(echo \$($sentieon_exe driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
     END_VERSIONS
     """
 }

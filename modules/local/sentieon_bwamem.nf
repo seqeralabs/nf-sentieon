@@ -22,16 +22,21 @@ process SENTIEON_BWAMEM {
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def read_group = "-R \'@RG\\tID:${meta.id}\\tSM:${meta.id}\\tPL:ILLUMINA\'"
+    def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
-    sentieon bwa mem \\
+    $sentieon_exe \\
+        bwa \\
+        mem \\
         $read_group \\
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
         $args \\
-        | sentieon util sort \\
+        | $sentieon_exe \\
+            util \\
+            sort \\
             -r $fasta \\
             -o $prefix \\
             -t $task.cpus \\
@@ -41,8 +46,8 @@ process SENTIEON_BWAMEM {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sentieon: \$(echo \$(sentieon driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
-        bwa: \$(echo \$(sentieon bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+        sentieon: \$(echo \$($sentieon_exe driver --version 2>&1) | sed -e "s/sentieon-genomics-//g")
+        bwa: \$(echo \$($sentieon_exe bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
     END_VERSIONS
     """
 }
