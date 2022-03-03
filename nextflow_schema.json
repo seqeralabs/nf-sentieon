@@ -72,22 +72,18 @@
                 },
                 "bwa_index": {
                     "type": "string",
-                    "default": "None",
                     "fa_icon": "fas fa-address-book"
                 },
                 "known_dbsnp": {
                     "type": "string",
-                    "default": "None",
                     "fa_icon": "fas fa-chart-bar"
                 },
                 "known_indels": {
                     "type": "string",
-                    "default": "None",
                     "fa_icon": "fas fa-chart-bar"
                 },
                 "known_mills": {
                     "type": "string",
-                    "default": "None",
                     "fa_icon": "fas fa-chart-bar"
                 },
                 "igenomes_base": {
