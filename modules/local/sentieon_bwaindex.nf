@@ -19,7 +19,7 @@ process SENTIEON_BWAINDEX {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    export_sentieon_secret_file.sh
+    source export_sentieon_secret_file.sh
 
     mkdir bwa_index
 

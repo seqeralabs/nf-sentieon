@@ -19,7 +19,7 @@ process SENTIEON_PLOT {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    export_sentieon_secret_file.sh
+    source export_sentieon_secret_file.sh
 
     $sentieon_exe \\
         plot \\
