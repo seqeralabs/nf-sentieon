@@ -3,7 +3,7 @@ process SENTIEON_BWAINDEX {
     label 'process_high'
     label 'sentieon'
 
-    secret 'sentieon_license_text'
+    secret 'SENTIEON_LICENSE_BASE64'
 
     input:
     path fasta
@@ -19,13 +19,7 @@ process SENTIEON_BWAINDEX {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    env > env_before.txt
-
-    echo \$sentieon_license_text
-
     export_sentieon_secret_file.sh
-
-    env > env_after.txt
 
     mkdir bwa_index
 
