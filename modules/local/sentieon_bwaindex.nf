@@ -21,6 +21,8 @@ process SENTIEON_BWAINDEX {
     """
     env > env_before.txt
 
+    echo \$sentieon_license_text
+
     export_sentieon_secret_file.sh
 
     env > env_after.txt
