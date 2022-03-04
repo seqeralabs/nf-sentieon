@@ -3,6 +3,8 @@ process SENTIEON_BWAMEM {
     label 'process_high'
     label 'sentieon'
 
+    secret 'sentieon_license_text'
+
     input:
     tuple val(meta), path(reads)
     path fasta
@@ -24,6 +26,10 @@ process SENTIEON_BWAMEM {
     def read_group = "-R \'@RG\\tID:${meta.id}\\tSM:${meta.id}\\tPL:ILLUMINA\'"
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
+    set -eu
+    export SENTIEON_LICENSE=\$(mktemp)
+    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
     $sentieon_exe \\

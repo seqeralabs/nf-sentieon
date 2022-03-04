@@ -3,6 +3,8 @@ process SENTIEON_PLOT {
     label 'process_low'
     label 'sentieon'
 
+    secret 'sentieon_license_text'
+
     input:
     tuple val(meta), path(input_file)
 
@@ -17,6 +19,10 @@ process SENTIEON_PLOT {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
+    set -eu
+    export SENTIEON_LICENSE=\$(mktemp)
+    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+
     $sentieon_exe \\
         plot \\
         $args \\

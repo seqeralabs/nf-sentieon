@@ -3,6 +3,8 @@ process SENTIEON_BWAINDEX {
     label 'process_high'
     label 'sentieon'
 
+    secret 'sentieon_license_text'
+
     input:
     path fasta
 
@@ -17,6 +19,10 @@ process SENTIEON_BWAINDEX {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
+    set -eu
+    export SENTIEON_LICENSE=\$(mktemp)
+    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+
     mkdir bwa_index
 
     $sentieon_exe \\
