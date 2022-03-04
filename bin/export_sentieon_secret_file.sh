@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -eu
 export SENTIEON_LICENSE=$(mktemp)
-echo -e "$sentieon_license_text" > $SENTIEON_LICENSE
+echo -e "$SENTIEON_LICENSE_BASE64" | base64 -d > $SENTIEON_LICENSE
