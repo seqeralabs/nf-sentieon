@@ -21,7 +21,7 @@ process SENTIEON_BWAINDEX {
     """
     set -eu
     export SENTIEON_LICENSE=\$(mktemp)
-    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+    echo -e "$sentieon_license_text" > \$SENTIEON_LICENSE
 
     mkdir bwa_index
 

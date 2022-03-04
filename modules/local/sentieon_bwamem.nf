@@ -28,7 +28,7 @@ process SENTIEON_BWAMEM {
     """
     set -eu
     export SENTIEON_LICENSE=\$(mktemp)
-    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+    echo -e "$sentieon_license_text" > \$SENTIEON_LICENSE
 
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 

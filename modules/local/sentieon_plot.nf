@@ -21,7 +21,7 @@ process SENTIEON_PLOT {
     """
     set -eu
     export SENTIEON_LICENSE=\$(mktemp)
-    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+    echo -e "$sentieon_license_text" > \$SENTIEON_LICENSE
 
     $sentieon_exe \\
         plot \\
