@@ -26,7 +26,7 @@ process SENTIEON_BWAMEM {
     def read_group = "-R \'@RG\\tID:${meta.id}\\tSM:${meta.id}\\tPL:ILLUMINA\'"
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    source export_sentieon_secret_file.sh
+    source sentieon_init.sh SENTIEON_LICENSE_BASE64
 
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
