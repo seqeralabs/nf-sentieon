@@ -19,9 +19,11 @@ process SENTIEON_BWAINDEX {
     def args = task.ext.args ?: ''
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
-    set -eu
-    export SENTIEON_LICENSE=\$(mktemp)
-    echo -e "\$sentieon_license_text" > \$SENTIEON_LICENSE
+    env > env_before.txt
+
+    export_sentieon_secret_file.sh
+
+    env > env_after.txt
 
     mkdir bwa_index
 
