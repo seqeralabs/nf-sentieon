@@ -18,6 +18,7 @@ nextflow.enable.dsl = 2
 */
 
 params.fasta        = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.fai          = WorkflowMain.getGenomeAttribute(params, 'fai')
 params.bwa_index    = WorkflowMain.getGenomeAttribute(params, 'bwa')
 params.known_dbsnp  = WorkflowMain.getGenomeAttribute(params, 'known_dbsnp')
 params.known_mills  = WorkflowMain.getGenomeAttribute(params, 'known_mills')

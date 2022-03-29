@@ -31,8 +31,7 @@
                     "fa_icon": "fas fa-folder-open"
                 },
                 "output_dedup_bam": {
-                    "type": "string",
-                    "default": "false",
+                    "type": "boolean",
                     "description": "Output and publish BAM instead of CRAM after deduplication.",
                     "fa_icon": "fas fa-clone"
                 },
@@ -76,21 +75,35 @@
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
                 },
+                "fai": {
+                    "type": "string",
+                    "fa_icon": "fas fa-address-book",
+                    "description": "Path to FASTA reference index."
+                },
                 "bwa_index": {
                     "type": "string",
-                    "fa_icon": "fas fa-address-book"
+                    "fa_icon": "fas fa-address-book",
+                    "description": "Path to directory containing BWA index."
                 },
                 "known_dbsnp": {
                     "type": "string",
-                    "fa_icon": "fas fa-chart-bar"
+                    "fa_icon": "fas fa-chart-bar",
+                    "description": "Path to known dbSNP file."
                 },
                 "known_indels": {
                     "type": "string",
-                    "fa_icon": "fas fa-chart-bar"
+                    "fa_icon": "fas fa-chart-bar",
+                    "description": "Path to known indels file."
                 },
                 "known_mills": {
                     "type": "string",
-                    "fa_icon": "fas fa-chart-bar"
+                    "fa_icon": "fas fa-chart-bar",
+                    "description": "Path to known Mills file."
+                },
+                "save_reference": {
+                    "type": "boolean",
+                    "description": "If generated, save any genome related files in the results directory.",
+                    "fa_icon": "far fa-save"
                 },
                 "igenomes_base": {
                     "type": "string",

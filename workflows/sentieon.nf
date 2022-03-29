@@ -10,7 +10,7 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowSentieon.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.input, params.fasta, params.fai, params.bwa_index, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -113,12 +113,17 @@ workflow SENTIEON {
     //
     // MODULE: Generate Fasta index file
     //
-    SAMTOOLS_FAIDX (
-        [ [:], ch_fasta ]
-    )
-    ch_fai      = SAMTOOLS_FAIDX.out.fai.map { it[1] }
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
-
+    ch_fai = Channel.empty()
+    if (params.fai) {
+        ch_fai = file(params.fai)
+    } else {
+        SAMTOOLS_FAIDX (
+            [ [:], ch_fasta ]
+        )
+        ch_fai      = SAMTOOLS_FAIDX.out.fai.map { it[1] }
+        ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
+    }
+    
     //
     // MODULE: Make BWA index
     //
