@@ -252,12 +252,16 @@ workflow SENTIEON {
 
     SENTIEON_DRIVER_DEDUP (
         ch_bam_bai_score,
-        [],
-        [],
+        ch_fasta,
+        ch_fai,
         [],
         [],
         []
     )
+    ch_bam_bai = SENTIEON_DRIVER_DEDUP.out.cram.join(SENTIEON_DRIVER_DEDUP.out.crai)
+    if (params.output_dedup_bam) {
+        ch_bam_bai = SENTIEON_DRIVER_DEDUP.out.bam.join(SENTIEON_DRIVER_DEDUP.out.bai)
+    }
     ch_versions = ch_versions.mix(SENTIEON_DRIVER_DEDUP.out.versions.first())
 
     /*
@@ -271,10 +275,7 @@ workflow SENTIEON {
     //
     // MODULE: Run Sentieon driver command for QualCal (pre-recalibration)
     //
-    SENTIEON_DRIVER_DEDUP
-        .out
-        .bam
-        .join(SENTIEON_DRIVER_DEDUP.out.bai)
+    ch_bam_bai
         .map { it -> it + [ [], [], [], [] ] }
         .set { ch_dedup_bam_bai }
 

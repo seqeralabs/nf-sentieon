@@ -16,6 +16,8 @@ process SENTIEON_DRIVER {
     output:
     tuple val(meta), path('*.bam')                  , emit: bam          , optional: true
     tuple val(meta), path('*.bai')                  , emit: bai          , optional: true
+    tuple val(meta), path('*.cram')                 , emit: cram         , optional: true
+    tuple val(meta), path('*.crai')                 , emit: crai         , optional: true
     tuple val(meta), path('*.vcf.gz')               , emit: vcf          , optional: true
     tuple val(meta), path('*recal_data.table')      , emit: recal_pre    , optional: true
     tuple val(meta), path('*recal_data.table.post') , emit: recal_post   , optional: true

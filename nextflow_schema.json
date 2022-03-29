@@ -30,6 +30,12 @@
                     "default": "./results",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "output_dedup_bam": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "Output and publish BAM instead of CRAM after deduplication.",
+                    "fa_icon": "fas fa-clone"
+                },
                 "sentieon_install_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
