@@ -47,7 +47,6 @@ include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PRE  } from '../modul
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_POST } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PLOT } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_HAPLOTYPER         } from '../modules/local/sentieon_driver'
-include { SENTIEON_DRIVER as SENTIEON_DRIVER_READWRITER         } from '../modules/local/sentieon_driver'
 include { SENTIEON_PLOT   as SENTIEON_PLOT_GCBIAS               } from '../modules/local/sentieon_plot'
 include { SENTIEON_PLOT   as SENTIEON_PLOT_QUALDISTRIBUTION     } from '../modules/local/sentieon_plot'
 include { SENTIEON_PLOT   as SENTIEON_PLOT_MEANQUALITYBYCYCLE   } from '../modules/local/sentieon_plot'
@@ -345,26 +344,6 @@ workflow SENTIEON {
         ch_fasta,
         ch_fai,
         ch_known_dbsnp,
-        [],
-        []
-    )
-
-    /*
-    =========================================
-    =========================================
-        RECALIBRATED BAM
-    =========================================
-    =========================================
-    */
-
-    //
-    // MODULE: Run Sentieon driver command for ReadWriter
-    //
-    SENTIEON_DRIVER_READWRITER (
-        ch_dedup_recal_bam_bai,
-        ch_fasta,
-        ch_fai,
-        [],
         [],
         []
     )
