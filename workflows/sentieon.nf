@@ -45,10 +45,6 @@ include { SENTIEON_DRIVER as SENTIEON_DRIVER_DEDUP              } from '../modul
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PRE  } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PLOT } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_HAPLOTYPER         } from '../modules/local/sentieon_driver'
-include { SENTIEON_PLOT   as SENTIEON_PLOT_GCBIAS               } from '../modules/local/sentieon_plot'
-include { SENTIEON_PLOT   as SENTIEON_PLOT_QUALDISTRIBUTION     } from '../modules/local/sentieon_plot'
-include { SENTIEON_PLOT   as SENTIEON_PLOT_MEANQUALITYBYCYCLE   } from '../modules/local/sentieon_plot'
-include { SENTIEON_PLOT   as SENTIEON_PLOT_INSERTSIZEMETRICS    } from '../modules/local/sentieon_plot'
 include { SENTIEON_PLOT   as SENTIEON_PLOT_QUALCAL              } from '../modules/local/sentieon_plot'
 
 //
@@ -198,25 +194,6 @@ workflow SENTIEON {
         []
     )
 
-    //
-    // MODULE: Run Sentieon plot to create PDF plots for QC metrics
-    //
-    SENTIEON_PLOT_GCBIAS (
-        SENTIEON_DRIVER_METRICS.out.metrics_gc
-    )
-
-    SENTIEON_PLOT_QUALDISTRIBUTION (
-        SENTIEON_DRIVER_METRICS.out.metrics_qd
-    )
-
-    SENTIEON_PLOT_MEANQUALITYBYCYCLE (
-        SENTIEON_DRIVER_METRICS.out.metrics_mq
-    )
-
-    SENTIEON_PLOT_INSERTSIZEMETRICS (
-        SENTIEON_DRIVER_METRICS.out.metrics_is
-    )
-
     /*
     =========================================
     =========================================
@@ -345,6 +322,9 @@ workflow SENTIEON {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(SENTIEON_DRIVER_METRICS.out.metrics_gc.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(SENTIEON_DRIVER_METRICS.out.metrics_aln.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(SENTIEON_DRIVER_METRICS.out.metrics_is.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()
