@@ -43,7 +43,6 @@ include { SENTIEON_BWAMEM   } from '../modules/local/sentieon_bwamem'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_METRICS            } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_DEDUP              } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PRE  } from '../modules/local/sentieon_driver'
-include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_POST } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_QUALCAL_RECAL_PLOT } from '../modules/local/sentieon_driver'
 include { SENTIEON_DRIVER as SENTIEON_DRIVER_HAPLOTYPER         } from '../modules/local/sentieon_driver'
 include { SENTIEON_PLOT   as SENTIEON_PLOT_GCBIAS               } from '../modules/local/sentieon_plot'
@@ -181,7 +180,7 @@ workflow SENTIEON {
     */
 
     //
-    // MODULE: Run Sentieon driver command to get various QC metrics
+    // MODULE: Run Sentieon driver command to get various QC metrics and LocusCollector
     //
     SENTIEON_BWAMEM
         .out
@@ -275,8 +274,16 @@ workflow SENTIEON {
     )
     ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_PRE.out.versions.first())
 
+    /*
+    =========================================
+    =========================================
+        VARIANT CALLING
+    =========================================
+    =========================================
+    */
+
     //
-    // MODULE: Run Sentieon driver command for QualCal (post-recalibration)
+    // MODULE: Run Sentieon driver command for Haplotyper and QualCal (post-recalibration)
     //
     ch_dedup_bam_bai
         .map { meta, bam, bai, score, score_idx, recal_pre, recal_post -> [ meta, bam, bai, score, score_idx ] }
@@ -284,7 +291,7 @@ workflow SENTIEON {
         .map { it -> it + [ [] ] }
         .set { ch_dedup_recal_bam_bai }
 
-    SENTIEON_DRIVER_QUALCAL_RECAL_POST (
+    SENTIEON_DRIVER_HAPLOTYPER (
         ch_dedup_recal_bam_bai,
         ch_fasta,
         ch_fai,
@@ -292,14 +299,13 @@ workflow SENTIEON {
         ch_known_mills,
         ch_known_indels
     )
-    ch_versions = ch_versions.mix(SENTIEON_DRIVER_QUALCAL_RECAL_POST.out.versions.first())
 
     //
     // MODULE: Run Sentieon driver command for QualCal (plot recalibration)
     //
     ch_dedup_recal_bam_bai
         .map { meta, bam, bai, score, score_idx, recal_pre, recal_post -> [ meta, [], [], [], [], recal_pre ] }
-        .join(SENTIEON_DRIVER_QUALCAL_RECAL_POST.out.recal_post)
+        .join(SENTIEON_DRIVER_HAPLOTYPER.out.recal_post)
         .set { ch_recal_pre_post }
 
     SENTIEON_DRIVER_QUALCAL_RECAL_PLOT (
@@ -313,26 +319,6 @@ workflow SENTIEON {
 
     SENTIEON_PLOT_QUALCAL (
         SENTIEON_DRIVER_QUALCAL_RECAL_PLOT.out.recal_csv
-    )
-
-    /*
-    =========================================
-    =========================================
-        VARIANT CALLING
-    =========================================
-    =========================================
-    */
-
-    //
-    // MODULE: Run Sentieon driver command for Haplotyper
-    //
-    SENTIEON_DRIVER_HAPLOTYPER (
-        ch_dedup_recal_bam_bai,
-        ch_fasta,
-        ch_fai,
-        ch_known_dbsnp,
-        [],
-        []
     )
 
     /*
