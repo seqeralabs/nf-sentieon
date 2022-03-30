@@ -39,7 +39,7 @@ process SENTIEON_DRIVER {
 
     script:
     def args   = task.ext.args ?: ''
-    def input  = bam ? "-i $bam" : ''
+    def input  = bam ? '-i ' + bam.sort().join(' -i ') : ''
     def ref    = fasta ? "-r $fasta" : ''
     def dbsnp  = known_dbsnp  ? "-k $known_dbsnp" : ''
     def mills  = known_mills  ? "-k $known_mills" : ''

@@ -41,9 +41,9 @@ WorkflowMain.initialise(workflow, params, log)
 include { SENTIEON } from './workflows/sentieon'
 
 //
-// WORKFLOW: Run main nf-core/sentieon analysis pipeline
+// WORKFLOW: Run main nf-sentieon analysis pipeline
 //
-workflow NFCORE_SENTIEON {
+workflow NF_SENTIEON {
     SENTIEON ()
 }
 
@@ -58,7 +58,7 @@ workflow NFCORE_SENTIEON {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_SENTIEON ()
+    NF_SENTIEON ()
 }
 
 /*

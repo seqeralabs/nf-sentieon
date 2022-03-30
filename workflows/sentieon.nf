@@ -82,29 +82,6 @@ workflow SENTIEON {
     /*
     =========================================
     =========================================
-        READ IN INPUT SAMPLESHEET
-    =========================================
-    =========================================
-    */
-
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        ch_input
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    // Filter for paired-end reads only
-    INPUT_CHECK
-        .out
-        .reads
-        .filter { meta, fasta -> !meta.single_end }
-        .set { ch_reads }
-
-    /*
-    =========================================
-    =========================================
         PREPARE GENOME FILES
     =========================================
     =========================================
@@ -141,6 +118,22 @@ workflow SENTIEON {
     /*
     =========================================
     =========================================
+        READ IN INPUT SAMPLESHEET
+    =========================================
+    =========================================
+    */
+
+    //
+    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    //
+    INPUT_CHECK (
+        ch_input
+    )
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    /*
+    =========================================
+    =========================================
         READ QC
     =========================================
     =========================================
@@ -150,7 +143,7 @@ workflow SENTIEON {
     // MODULE: Run FastQC
     //
     FASTQC (
-        ch_reads
+        INPUT_CHECK.out.reads
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
@@ -166,7 +159,7 @@ workflow SENTIEON {
     // MODULE: Run Sentieon bwa mem command
     //
     SENTIEON_BWAMEM (
-        ch_reads,
+        INPUT_CHECK.out.reads,
         ch_fasta,
         ch_fai,
         ch_bwa_index
@@ -183,13 +176,23 @@ workflow SENTIEON {
     //
     // MODULE: Run Sentieon driver command to get various QC metrics and LocusCollector
     //
+
     SENTIEON_BWAMEM
         .out
         .bam
         .join(SENTIEON_BWAMEM.out.bai)
+        .map { meta, bam, bai ->
+            id_meta = meta.clone()
+            id_meta.id = id_meta.sample
+            id_meta.remove('read_group')
+            id_meta.remove('sample')
+
+            [ id_meta, bam, bai ]
+        }
+        .groupTuple()
         .map { it -> it + [ [], [], [], [] ] }
         .set { ch_bam_bai }
-
+    
     SENTIEON_DRIVER_METRICS (
         ch_bam_bai,
         ch_fasta,

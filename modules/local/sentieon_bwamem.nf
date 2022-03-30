@@ -23,7 +23,7 @@ process SENTIEON_BWAMEM {
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def read_group = "-R \'@RG\\tID:${meta.id}\\tSM:${meta.id}\\tPL:ILLUMINA\'"
+    def read_group = meta.read_group ?: "\'@RG\\tID:${meta.id}\\tSM:${meta.id}\\tPL:ILLUMINA\'"
     def sentieon_exe = params.sentieon_install_dir ? "${params.sentieon_install_dir}/sentieon" : 'sentieon'
     """
     source sentieon_init.sh SENTIEON_LICENSE_BASE64
@@ -33,7 +33,7 @@ process SENTIEON_BWAMEM {
     $sentieon_exe \\
         bwa \\
         mem \\
-        $read_group \\
+        -R $read_group \\
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
