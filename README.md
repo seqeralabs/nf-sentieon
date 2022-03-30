@@ -7,13 +7,13 @@
 
 **nf-sentieon** is a simple, proof-of-concept pipeline to run the [Sentieon](https://www.sentieon.com/) suite of tools.
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker  containers making installation trivial and results highly reproducible.
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker containers making installation trivial and results highly reproducible.
 
 Sentieon is licensed software that you can obtain for a [free trial](https://www.sentieon.com/home/free-trial/) via the website. This pipeline has only been tested using AWS Batch and doesn't come with any bundled containers.
 
 ## Credits
 
-nf-sentieon was originally written by Harshil Patel and Graham Wright, [Seqera Labs](https://seqera.io/)
+nf-sentieon was originally written by [Harshil Patel](https://github.com/drpatelh) and [Graham Wright](https://github.com/gwright99), [Seqera Labs](https://seqera.io/) in collaboration with [Don Freed](https://github.com/DonFreed), [Sentieon](https://www.sentieon.com/).
 
 ## Citations
 
