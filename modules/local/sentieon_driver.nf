@@ -5,6 +5,8 @@ process SENTIEON_DRIVER {
 
     secret 'SENTIEON_LICENSE_BASE64'
 
+    container 'nfcore/sentieon:202112.02'
+
     input:
     tuple val(meta), path(bam), path(bai), path(score), path(score_idx), path(recal_pre), path(recal_post)
     path fasta

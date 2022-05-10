@@ -5,6 +5,8 @@ process SENTIEON_PLOT {
 
     secret 'SENTIEON_LICENSE_BASE64'
 
+    container 'nfcore/sentieon:202112.02'
+
     input:
     tuple val(meta), path(input_file)
 

@@ -5,6 +5,8 @@ process SENTIEON_BWAINDEX {
 
     secret 'SENTIEON_LICENSE_BASE64'
 
+    container 'nfcore/sentieon:202112.02'
+
     input:
     path fasta
 
