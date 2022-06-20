@@ -98,9 +98,15 @@ def check_samplesheet(file_in, file_out):
                 if fastq:
                     if fastq.find(" ") != -1:
                         print_error("FastQ file contains spaces!", "Line", line)
-                    if not fastq.endswith(".fastq.gz") and not fastq.endswith(".fq.gz"):
+                    if (
+                        not fastq.endswith(".fastq.gz")
+                        and not fastq.endswith(".fq.gz")
+                        and not fastq.endswith(".fastq")
+                        and not fastq.endswith(".fq")
+                    ):
                         print_error(
-                            "FastQ file does not have extension '.fastq.gz' or '.fq.gz'!",
+                            "FastQ file does not have extension '.fastq.gz',"
+                            " '.fq.gz', '.fastq', or '.fq'!",
                             "Line",
                             line,
                         )
@@ -136,11 +142,6 @@ def check_samplesheet(file_in, file_out):
         with open(file_out, "w") as fout:
             fout.write(",".join(["sample", "single_end", "rg_id", "rg_lb", "rg_pl", "fastq_1", "fastq_2"]) + "\n")
             for sample in sorted(sample_mapping_dict.keys()):
-
-                ## Check that multiple runs of the same sample are of the same datatype
-                if not all(x[0] == sample_mapping_dict[sample][0][0] for x in sample_mapping_dict[sample]):
-                    print_error("Multiple runs of a sample must be of the same datatype!", "Sample", "{}".format(sample))
-
                 for idx, val in enumerate(sample_mapping_dict[sample]):
                     fout.write(",".join([sample] + val) + "\n")
     else:
