@@ -34,7 +34,7 @@ The pipeline will auto-detect whether a sample is single- or paired-end using th
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
 
 ```console
-sample,fastq_1,fastq_2
+sample,rg_id,rg_lb,rg_pl,fastq_1,fastq_2
 CONTROL_REP1,H88WKADXX.1.CGATGT-1,U0a,ILLUMINA,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
 CONTROL_REP2,H88WKADXX.1.CGATGT-2,U1a,ILLUMINA,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
 CONTROL_REP3,H88WKADXX.1.CGATGT-3,U2a,ILLUMINA,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
@@ -45,10 +45,13 @@ TREATMENT_REP3,H88WKADXX.1.CGATGT-7,U5a,ILLUMINA,AEG588A6_S6_L004_R1_001.fastq.g
 ```
 
 | Column         | Description                                                                                                                                                                            |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`).                                 |
+| `rg_id`        | The readgroup id for the fastq file. Must be unique in the samplesheet. Please see [sentieon's recommendations on read groups](https://support.sentieon.com/appnotes/read_groups/) for guidance on setting this field. |
+| `rg_lb`        | The readgroup library for the fastq file. Please see [sentieon's recommendations on read groups](https://support.sentieon.com/appnotes/read_groups/) for guidance on setting this field.                               |
+| `rg_pl`        | The readgroup platform for the fastq file. Please see [sentieon's recommendations on read groups](https://support.sentieon.com/appnotes/read_groups/) for guidance on setting this field.                              |
+| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to have the extension ".fastq.gz", ".fq.gz", ".fastq", or ".fq".                                                                                          |
+| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to have the extension ".fastq.gz",".fq.gz", ".fastq", or ".fq".                                                                                           |
 
 An [example samplesheet](../assets/samplesheet_test_illumina.csv) has been provided with the pipeline.
 
