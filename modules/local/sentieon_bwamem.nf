@@ -30,7 +30,7 @@ process SENTIEON_BWAMEM {
     """
     source sentieon_init.sh SENTIEON_LICENSE_BASE64
 
-    INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+    INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//' | head -n 1`
 
     $sentieon_exe \\
         bwa \\
