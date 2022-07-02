@@ -136,11 +136,6 @@ def check_samplesheet(file_in, file_out):
         with open(file_out, "w") as fout:
             fout.write(",".join(["sample", "single_end", "rg_id", "rg_lb", "rg_pl", "fastq_1", "fastq_2"]) + "\n")
             for sample in sorted(sample_mapping_dict.keys()):
-
-                ## Check that multiple runs of the same sample are of the same datatype
-                if not all(x[0] == sample_mapping_dict[sample][0][0] for x in sample_mapping_dict[sample]):
-                    print_error("Multiple runs of a sample must be of the same datatype!", "Sample", "{}".format(sample))
-
                 for idx, val in enumerate(sample_mapping_dict[sample]):
                     fout.write(",".join([sample] + val) + "\n")
     else:
