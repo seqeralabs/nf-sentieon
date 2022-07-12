@@ -1,0 +1,6 @@
+sample,rg_id,rg_lb,rg_pl,fastq_1,fastq_2
+1222N,1222N.1,1222N-1,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L001_R1_xxx.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L001_R2_xxx.fastq.gz
+1222N,1222N.2,1222N-1,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L002_R1_xxx.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L002_R2_xxx.fastq.gz
+1222N,1222N.2,1222N-1,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L004_R1_xxx.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L004_R2_xxx.fastq.gz
+1222N,1222N.2,1222N-1,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L007_R1_xxx.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L007_R2_xxx.fastq.gz
+1222N,1222N.2,1222N-1,ILLUMINA,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L008_R1_xxx.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/sarek/testdata/tiny/normal/tiny_n_L008_R2_xxx.fastq.gz
