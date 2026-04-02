@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Launch workflow via tower
-        uses: nf-core/tower-action@v2
+        uses: nf-core/tower-action@3d5fa041bd9f4a0e99aaea410b4f5b9ca8c0c4fc # v2
         
         with:
           workspace_id: ${{ secrets.TOWER_WORKSPACE_ID }}
